@@ -1,6 +1,5 @@
 package mit.edu.obmg.tempsensing;
 
-import ioio.lib.api.DigitalOutput;
 import ioio.lib.api.TwiMaster;
 import ioio.lib.api.exception.ConnectionLostException;
 import ioio.lib.util.BaseIOIOLooper;
@@ -9,88 +8,56 @@ import ioio.lib.util.android.IOIOActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.TextView;
-import android.widget.ToggleButton;
 
-/**
- * This is the main activity of the HelloIOIO example application.
- * 
- * It displays a toggle button on the screen, which enables control of the
- * on-board LED. This example shows a very simple usage of the IOIO, by using
- * the {@link IOIOActivity} class. For a more advanced use case, see the
- * HelloIOIOPower example.
- */
 public class TempSensingMain extends IOIOActivity {
 	private final String TAG = "TempSensingMain";
 
 	//Sensor I2C
 	private TwiMaster twi;
 	double sensortemp;
-
+	
 	//UI
-	private TextView TempCelsius;
-	private TextView TempFahrenheit;
+	private TextView TempCelsius1;
+	private TextView TempFahrenheit1;
+	private TextView TempCelsius2;
+	private TextView TempFahrenheit2;
+	private TextView TempCelsius3;
+	private TextView TempFahrenheit3;
 
-	/**
-	 * Called when the activity is first created. Here we normally initialize
-	 * our GUI.
-	 */
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_temp_sensing_main);
 
-		TempCelsius = (TextView) findViewById(R.id.tempC);
-		TempFahrenheit = (TextView) findViewById(R.id.tempF);
+		TempCelsius1 = (TextView) findViewById(R.id.tempC1);
+		TempFahrenheit1 = (TextView) findViewById(R.id.tempF1);
+		TempCelsius2 = (TextView) findViewById(R.id.tempC2);
+		TempFahrenheit2 = (TextView) findViewById(R.id.tempF2);
+		TempCelsius3 = (TextView) findViewById(R.id.tempC3);
+		TempFahrenheit3 = (TextView) findViewById(R.id.tempF3);
 	}
 
-	/**
-	 * This is the thread on which all the IOIO activity happens. It will be run
-	 * every time the application is resumed and aborted when it is paused. The
-	 * method setup() will be called right after a connection with the IOIO has
-	 * been established (which might happen several times!). Then, loop() will
-	 * be called repetitively until the IOIO gets disconnected.
-	 */
 	class Looper extends BaseIOIOLooper {
-		/**
-		 * Called every time a connection with IOIO has been established.
-		 * Typically used to open pins.
-		 * 
-		 * @throws ConnectionLostException
-		 *             When IOIO connection is lost.
-		 * 
-		 * @see ioio.lib.util.AbstractIOIOActivity.IOIOThread#setup()
-		 */
+
 		@Override
 		protected void setup() throws ConnectionLostException {
 			twi = ioio_.openTwiMaster(0, TwiMaster.Rate.RATE_100KHz, true);
 
 		}
 
-		/**
-		 * Called repetitively while the IOIO is connected.
-		 * 
-		 * @throws ConnectionLostException
-		 *             When IOIO connection is lost.
-		 * 
-		 * @see ioio.lib.util.AbstractIOIOActivity.IOIOThread#loop()
-		 */
 		@Override
 		public void loop() throws ConnectionLostException {
 			try {
+				//ReadSensor(0x77, twi);
 				ReadSensor(0x5A, twi);
-				Log.d(TAG, "RAW: "+sensortemp);
-
+				//ReadSensor(0x50, twi);
+				
 				Thread.sleep(100);
 			} catch (InterruptedException e) {
 			}
 		}
 	}
 
-	/**
-	 * A method to create our IOIO thread.
-	 * 
-	 * @see ioio.lib.util.AbstractIOIOActivity#createIOIOThread()
-	 */
 	@Override
 	protected IOIOLooper createIOIOLooper() {
 		return new Looper();
@@ -99,10 +66,11 @@ public class TempSensingMain extends IOIOActivity {
 	// temperature sensors
 	public void ReadSensor(int address, TwiMaster port) {
 
-		byte[] request = new byte[] { 0x07 };
-		byte[] tempdata = new byte[2];
-		double receivedTemp = 0x0000;
-		double tempFactor = 0.02;
+		
+		byte[] request = new byte[] { 0x07 };	//Byte address to ask for sensor data
+		byte[] tempdata = new byte[2];			//Byte to save sensor data
+		double receivedTemp = 0x0000;			//Value after processing sensor data
+		double tempFactor = 0.02;				//0.02 degrees per LSB (measurement resolution of the MLX90614)
 
 		try {
 			port.writeRead(address, false, request,request.length,tempdata,tempdata.length);
@@ -110,7 +78,10 @@ public class TempSensingMain extends IOIOActivity {
 			receivedTemp = (double)(((tempdata[1] & 0x007f) << 8)+ tempdata[0]);
 			receivedTemp = (receivedTemp * tempFactor)-0.01;
 
-			handleTemp(receivedTemp);
+			//Log.d(TAG, "ReceivedTemp: "+ receivedTemp);
+			
+			handleTemp(address, receivedTemp);
+			
 		} catch (ConnectionLostException e) {
 			// TODO Auto-generated catch block 
 			e.printStackTrace();
@@ -120,20 +91,42 @@ public class TempSensingMain extends IOIOActivity {
 		}
 	}
 
-	private void handleTemp (double temp){
-
+	private void handleTemp (double address, double temp){
+		//Log.d(TAG, "Address: "+address);
+		
 		final float celsius = (float) (temp - 273.15);
-		Log.i(TAG, "C: "+celsius); 
+		//Log.i(TAG, "C: "+celsius); 
 
 		final float fahrenheit = (float) ((celsius*1.8) + 32);
-		Log.i(TAG, "F: "+fahrenheit); 
+		//Log.i(TAG, "F: "+fahrenheit); 
 
-		TempCelsius.post(new Runnable() {
-			public void run() {
-				TempCelsius.setText("celsius: "+ celsius);
-				TempFahrenheit.setText("Fahrenheit: "+ fahrenheit);
-			}
-		});
+		switch ((int)address){
+		case 90:
+			TempCelsius1.post(new Runnable() {
+				public void run() {
+					TempCelsius1.setText("Celsius 1: "+ celsius);
+					TempFahrenheit1.setText("Fahrenheit 1: "+ fahrenheit);
+				}
+			});
+			break;
+		case 119:
+			TempCelsius2.post(new Runnable() {
+				public void run() {
+					TempCelsius2.setText("Celsius 2: "+ celsius);
+					TempFahrenheit2.setText("Fahrenheit 2: "+ fahrenheit);
+				}
+			});
+			break;
+		case 80:
+			TempCelsius3.post(new Runnable() {
+				public void run() {
+					TempCelsius3.setText("Celsius 3: "+ celsius);
+					TempFahrenheit3.setText("Fahrenheit 3: "+ fahrenheit);
+				}
+			});
+			break;
+			
+		}
 
 	}
 }

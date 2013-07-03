@@ -9,17 +9,49 @@
     tools:context=".TempSensingMain" >
 
     <TextView
-        android:id="@+id/tempC"
+        android:id="@+id/tempC1"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/TempReadingC" />
 
     <TextView
-        android:id="@+id/tempF"
+        android:id="@+id/tempF1"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignLeft="@+id/tempC"
-        android:layout_below="@+id/tempC"
+        android:layout_alignLeft="@+id/tempC1"
+        android:layout_below="@+id/tempC1"
+        android:text="@string/TempReadingF" />
+
+    <TextView
+        android:id="@+id/tempC2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/tempF1"
+        android:layout_below="@+id/tempF1"
+        android:text="@string/TempReadingC" />
+
+    <TextView
+        android:id="@+id/tempF2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/tempC2"
+        android:layout_below="@+id/tempC2"
+        android:text="@string/TempReadingF" />
+
+    <TextView
+        android:id="@+id/tempC3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/tempF2"
+        android:text="@string/TempReadingC" />
+
+    <TextView
+        android:id="@+id/tempF3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/tempC3"
+        android:layout_below="@+id/tempC3"
         android:text="@string/TempReadingF" />
 
 </RelativeLayout>
