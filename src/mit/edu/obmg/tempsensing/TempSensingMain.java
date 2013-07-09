@@ -15,7 +15,7 @@ public class TempSensingMain extends IOIOActivity {
 	//Sensor I2C
 	private TwiMaster twi;
 	double sensortemp;
-	
+
 	//UI
 	private TextView TempCelsius1;
 	private TextView TempFahrenheit1;
@@ -42,16 +42,17 @@ public class TempSensingMain extends IOIOActivity {
 		@Override
 		protected void setup() throws ConnectionLostException {
 			twi = ioio_.openTwiMaster(0, TwiMaster.Rate.RATE_100KHz, true);
-
+			//InitSensor(0x00, twi);
+			checkAddress(twi);
 		}
 
 		@Override
 		public void loop() throws ConnectionLostException {
 			try {
-				//ReadSensor(0x77, twi);
-				ReadSensor(0x5A, twi);
-				//ReadSensor(0x50, twi);
-				
+				ReadSensor(0x34, twi);		//dec 52
+				ReadSensor(0x2a, twi);		//dec 42
+				ReadSensor(0x5a, twi);		//dec 90
+
 				Thread.sleep(100);
 			} catch (InterruptedException e) {
 			}
@@ -66,22 +67,29 @@ public class TempSensingMain extends IOIOActivity {
 	// temperature sensors
 	public void ReadSensor(int address, TwiMaster port) {
 
-		
+
 		byte[] request = new byte[] { 0x07 };	//Byte address to ask for sensor data
 		byte[] tempdata = new byte[2];			//Byte to save sensor data
 		double receivedTemp = 0x0000;			//Value after processing sensor data
 		double tempFactor = 0.02;				//0.02 degrees per LSB (measurement resolution of the MLX90614)
 
+		byte[] getAddress = new byte[] { 0x6f };
+		byte[] getByte = new byte [2];
+
 		try {
+			/*port.writeRead(0x00, false, getAddress,getAddress.length,getByte,getByte.length);
+			Log.d(TAG, "Get LSByte: " +(double)getByte[0]);
+			Log.d(TAG, "Get MSByte: " +(double)getByte[1]);*/
+
 			port.writeRead(address, false, request,request.length,tempdata,tempdata.length);
 
 			receivedTemp = (double)(((tempdata[1] & 0x007f) << 8)+ tempdata[0]);
 			receivedTemp = (receivedTemp * tempFactor)-0.01;
 
-			//Log.d(TAG, "ReceivedTemp: "+ receivedTemp);
-			
+			Log.d(TAG, "ReceivedTemp: "+ receivedTemp);
+
 			handleTemp(address, receivedTemp);
-			
+
 		} catch (ConnectionLostException e) {
 			// TODO Auto-generated catch block 
 			e.printStackTrace();
@@ -93,7 +101,7 @@ public class TempSensingMain extends IOIOActivity {
 
 	private void handleTemp (double address, double temp){
 		//Log.d(TAG, "Address: "+address);
-		
+
 		final float celsius = (float) (temp - 273.15);
 		//Log.i(TAG, "C: "+celsius); 
 
@@ -109,7 +117,7 @@ public class TempSensingMain extends IOIOActivity {
 				}
 			});
 			break;
-		case 119:
+		case 42:
 			TempCelsius2.post(new Runnable() {
 				public void run() {
 					TempCelsius2.setText("Celsius 2: "+ celsius);
@@ -117,7 +125,7 @@ public class TempSensingMain extends IOIOActivity {
 				}
 			});
 			break;
-		case 80:
+		case 52:
 			TempCelsius3.post(new Runnable() {
 				public void run() {
 					TempCelsius3.setText("Celsius 3: "+ celsius);
@@ -125,8 +133,27 @@ public class TempSensingMain extends IOIOActivity {
 				}
 			});
 			break;
-			
+
 		}
 
+	}
+	
+	public void checkAddress(TwiMaster port){
+		byte[] request_on = new byte[] { 0x07 };
+		byte[] response = new byte[2];
+		for(int i=0; i<120; i++){
+			
+			try {
+				if( port.writeRead(i, false, request_on,request_on.length,response,response.length)){
+					Log.i(TAG, "Address "+ i+ " works!");
+				}
+			} catch (ConnectionLostException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
 	}
 }
