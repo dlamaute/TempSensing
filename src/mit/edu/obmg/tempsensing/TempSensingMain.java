@@ -30,22 +30,25 @@ public class TempSensingMain extends IOIOActivity {
 	private int mVibrate_pin01 = 34;
 	private int mVibrate_pin02 = 35;
 	private int mVibrate_pin03 = 36;
-	private int freq = 329;
-	private final int VALUE_MULTIPLIER = 100;
+	private int freq01 = 349;
+	private float period1, period2, period3 = 0;
+	private int freq02 = 261;
+	private int freq03 = 493;
+	private final int VALUE_MULTIPLIER = 1;
 	
 	/*
 	 *  TONES  ==========================================
 	 * Start by defining the relationship between 
 	 * 
 	 *	       note, period, &  frequency. 
-	 *	#define  c     3830    // 261 Hz 
-	 *	#define  d     3400    // 294 Hz 
-	 *	#define  e     3038    // 329 Hz 
-	 *	#define  f     2864    // 349 Hz 
-	 *	#define  g     2550    // 392 Hz 
-	 *	#define  a     2272    // 440 Hz 
-	 *	#define  b     2028    // 493 Hz 
-	 *	#define  C     1912    // 523 Hz 
+	 *	#define  c     3830     261 Hz 
+	 *	#define  d     3400     294 Hz 
+	 *	#define  e     3038     329 Hz 
+	 *	#define  f     2864     349 Hz 
+	 *	#define  g     2550     392 Hz 
+	 *	#define  a     2272     440 Hz 
+	 *	#define  b     2028     493 Hz 
+	 *	#define  C     1912     523 Hz 
 	 */
 
 
@@ -78,9 +81,9 @@ public class TempSensingMain extends IOIOActivity {
 		@Override
 		protected void setup() throws ConnectionLostException {
 			twi = ioio_.openTwiMaster(0, TwiMaster.Rate.RATE_100KHz, true);
-			mVibrate01 = ioio_.openPwmOutput(mVibrate_pin01, freq);
-			mVibrate02 = ioio_.openPwmOutput(mVibrate_pin02, freq);
-			mVibrate03 = ioio_.openPwmOutput(mVibrate_pin03, freq);
+			mVibrate01 = ioio_.openPwmOutput(mVibrate_pin01, freq01);
+			mVibrate02 = ioio_.openPwmOutput(mVibrate_pin02, freq02);
+			mVibrate03 = ioio_.openPwmOutput(mVibrate_pin03, freq03);
 			//InitSensor(0x00, twi);
 			//changeAddress(twi,0x5A);
 			//checkAddress(twi);
@@ -138,6 +141,10 @@ public class TempSensingMain extends IOIOActivity {
 		final float celsius = (float) (temp - 273.15);
 		Log.i(TAG, "Address: "+address+" C: "+celsius); 
 
+		period1 = (2864 + (celsius*90))/30;
+		period2 = (3830 + (celsius*90))/30;
+		period3 = (2028 + (celsius*90))/30;
+		
 		final float fahrenheit = (float) ((celsius*1.8) + 32);
 		Log.i(TAG, "Address: "+address+" F: "+fahrenheit); 
 
@@ -146,13 +153,11 @@ public class TempSensingMain extends IOIOActivity {
 			TempCelsius1.post(new Runnable() {
 				public void run() {
 					TempCelsius1.setText("Celsius 1: "+ celsius);
-					TempFahrenheit1.setText("Fahrenheit 1: "+ fahrenheit);
+					TempFahrenheit1.setText("Period: "+ period1);
 				}
 			});
 			try {
-				//mVibrate01.setPulseWidth(fahrenheit*VALUE_MULTIPLIER);
-				//mVibrate01.setDutyCycle(3830);
-				mVibrate01.setPulseWidth(3038);
+				mVibrate01.setPulseWidth(period1);
 			} catch (ConnectionLostException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -162,11 +167,11 @@ public class TempSensingMain extends IOIOActivity {
 			TempCelsius2.post(new Runnable() {
 				public void run() {
 					TempCelsius2.setText("Celsius 2: "+ celsius);
-					TempFahrenheit2.setText("Fahrenheit 2: "+ fahrenheit);
+					TempFahrenheit2.setText("Period 2: "+ period2);
 				}
 			});
 			try {
-				mVibrate02.setPulseWidth(fahrenheit*VALUE_MULTIPLIER);
+				mVibrate02.setPulseWidth(period2);
 			} catch (ConnectionLostException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -176,11 +181,11 @@ public class TempSensingMain extends IOIOActivity {
 			TempCelsius3.post(new Runnable() {
 				public void run() {
 					TempCelsius3.setText("Celsius 3: "+ celsius);
-					TempFahrenheit3.setText("Fahrenheit 3: "+ fahrenheit);
+					TempFahrenheit3.setText("Period 3: "+ period3);
 				}
 			});
 			try {
-				mVibrate03.setPulseWidth(fahrenheit*VALUE_MULTIPLIER);
+				mVibrate03.setPulseWidth(period3);
 			} catch (ConnectionLostException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
