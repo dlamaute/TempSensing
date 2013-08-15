@@ -141,9 +141,9 @@ public class TempSensingMain extends IOIOActivity {
 		final float celsius = (float) (temp - 273.15);
 		Log.i(TAG, "Address: "+address+" C: "+celsius); 
 
-		period1 = (2864 + (celsius*90))/30;
-		period2 = (3830 + (celsius*90))/30;
-		period3 = (2028 + (celsius*90))/30;
+		period1 = (2864 + (celsius*20))-3200;
+		period2 = (3830 + (celsius*20))-1700;
+		period3 = (2028 + (celsius*20))-1700;
 		
 		final float fahrenheit = (float) ((celsius*1.8) + 32);
 		Log.i(TAG, "Address: "+address+" F: "+fahrenheit); 
@@ -157,7 +157,7 @@ public class TempSensingMain extends IOIOActivity {
 				}
 			});
 			try {
-				mVibrate01.setPulseWidth(period1);
+				mVibrate01.setPulseWidth(celsius);
 			} catch (ConnectionLostException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -171,7 +171,7 @@ public class TempSensingMain extends IOIOActivity {
 				}
 			});
 			try {
-				mVibrate02.setPulseWidth(period2);
+				mVibrate02.setPulseWidth(celsius);
 			} catch (ConnectionLostException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -185,7 +185,7 @@ public class TempSensingMain extends IOIOActivity {
 				}
 			});
 			try {
-				mVibrate03.setPulseWidth(period3);
+				mVibrate03.setPulseWidth(celsius);
 			} catch (ConnectionLostException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
