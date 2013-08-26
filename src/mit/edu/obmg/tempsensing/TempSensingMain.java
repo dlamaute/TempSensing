@@ -31,9 +31,9 @@ public class TempSensingMain extends IOIOActivity {
 	private int mVibrate_pin02 = 35;
 	private int mVibrate_pin03 = 36;
 	private int freq01 = 349;
-	private float period1, period2, period3 = 0;
 	private int freq02 = 261;
 	private int freq03 = 493;
+	private float period1, period2, period3 = 0;
 	private final int VALUE_MULTIPLIER = 1;
 	
 	/*
@@ -157,7 +157,7 @@ public class TempSensingMain extends IOIOActivity {
 				}
 			});
 			try {
-				mVibrate01.setPulseWidth(celsius);
+				mVibrate01.setPulseWidth(period1);
 			} catch (ConnectionLostException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -171,7 +171,7 @@ public class TempSensingMain extends IOIOActivity {
 				}
 			});
 			try {
-				mVibrate02.setPulseWidth(celsius);
+				mVibrate02.setPulseWidth(period2);
 			} catch (ConnectionLostException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -185,7 +185,7 @@ public class TempSensingMain extends IOIOActivity {
 				}
 			});
 			try {
-				mVibrate03.setPulseWidth(celsius);
+				mVibrate03.setPulseWidth(period3);
 			} catch (ConnectionLostException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
