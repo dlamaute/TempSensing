@@ -141,9 +141,9 @@ public class TempSensingMain extends IOIOActivity {
 		final float celsius = (float) (temp - 273.15);
 		Log.i(TAG, "Address: "+address+" C: "+celsius); 
 
-		period1 = (2864 + (celsius*20))-3200;
+		period1 = freq01*2+celsius*20;
 		period2 = (3830 + (celsius*20))-1700;
-		period3 = (2028 + (celsius*20))-1700;
+		period3 = freq03*2+celsius*20;
 		
 		final float fahrenheit = (float) ((celsius*1.8) + 32);
 		Log.i(TAG, "Address: "+address+" F: "+fahrenheit); 
