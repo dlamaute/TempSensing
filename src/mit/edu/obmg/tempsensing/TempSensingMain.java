@@ -8,9 +8,11 @@ import ioio.lib.util.IOIOLooper;
 import ioio.lib.util.android.IOIOActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.widget.SeekBar;
+import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.TextView;
 
-public class TempSensingMain extends IOIOActivity {
+public class TempSensingMain extends IOIOActivity implements OnSeekBarChangeListener{
 	private final String TAG = "TempSensingMain";
 
 	//Sensor I2C
@@ -24,6 +26,7 @@ public class TempSensingMain extends IOIOActivity {
 	private TextView TempFahrenheit2;
 	private TextView TempCelsius3;
 	private TextView TempFahrenheit3;
+	private SeekBar VolBar01;
 
 	//Vibration output
 	private PwmOutput mVibrate01, mVibrate02, mVibrate03;
@@ -34,7 +37,7 @@ public class TempSensingMain extends IOIOActivity {
 	private int freq02 = 261;
 	private int freq03 = 493;
 	private float period1, period2, period3 = 0;
-	private final int VALUE_MULTIPLIER = 1;
+	private float valueMultiplier = 1;
 	
 	/*
 	 *  TONES  ==========================================
@@ -63,6 +66,11 @@ public class TempSensingMain extends IOIOActivity {
 		TempFahrenheit2 = (TextView) findViewById(R.id.tempF2);
 		TempCelsius3 = (TextView) findViewById(R.id.tempC3);
 		TempFahrenheit3 = (TextView) findViewById(R.id.tempF3);
+		
+		VolBar01 = (SeekBar) findViewById(R.id.VolBar01);
+		VolBar01.setProgress(2);
+		VolBar01.setMax(1);
+		VolBar01.setOnSeekBarChangeListener(this);
 	}
 
 	protected void onStart(){
@@ -140,9 +148,9 @@ public class TempSensingMain extends IOIOActivity {
 
 		final float celsius = (float) (temp - 273.15);
 		Log.i(TAG, "Address: "+address+" C: "+celsius); 
-
-		period1 = freq01*2+celsius*20;
-		period2 = (3830 + (celsius*20))-1700;
+		
+		period1 = (freq01*2+celsius*20)*valueMultiplier;
+		period2 = freq02*2+celsius*20;
 		period3 = freq03*2+celsius*20;
 		
 		final float fahrenheit = (float) ((celsius*1.8) + 32);
@@ -237,5 +245,23 @@ public class TempSensingMain extends IOIOActivity {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+	}
+
+	@Override
+	public void onProgressChanged(SeekBar seekBar, int progress,
+			boolean fromUser) {
+		valueMultiplier = progress;		
+	}
+
+	@Override
+	public void onStartTrackingTouch(SeekBar seekBar) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onStopTrackingTouch(SeekBar seekBar) {
+		// TODO Auto-generated method stub
+		
 	}
 }
