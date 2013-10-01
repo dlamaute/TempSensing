@@ -63,11 +63,30 @@
         android:text="@string/TempReadingC"
         android:textSize="30sp" />
 
-    <SeekBar
-        android:id="@+id/VolBar01"
-        android:layout_width="match_parent"
+    <Button
+        android:id="@+id/Button01Minus"
+        android:layout_width="60dp"
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
-        android:layout_below="@+id/tempF1" />
+        android:layout_below="@+id/tempF1"
+        android:text="-" />
+
+    <TextView
+        android:id="@+id/ValueMulti01"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@+id/Button01Plus"
+        android:layout_below="@+id/tempF1"
+        android:layout_toRightOf="@+id/Button01Plus"
+        android:text="@string/ValueMulti01"
+        android:textSize="30sp" />
+
+    <Button
+        android:id="@+id/Button01Plus"
+        android:layout_width="60dp"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/tempF1"
+        android:layout_toRightOf="@+id/Button01Minus"
+        android:text="+" />
 
 </RelativeLayout>

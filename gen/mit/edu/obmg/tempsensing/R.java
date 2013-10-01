@@ -24,8 +24,10 @@ public final class R {
         public static final int ic_launcher=0x7f020000;
     }
     public static final class id {
-        public static final int VolBar01=0x7f080006;
-        public static final int action_settings=0x7f080007;
+        public static final int Button01Minus=0x7f080006;
+        public static final int Button01Plus=0x7f080008;
+        public static final int ValueMulti01=0x7f080007;
+        public static final int action_settings=0x7f080009;
         public static final int tempC1=0x7f080000;
         public static final int tempC2=0x7f080003;
         public static final int tempC3=0x7f080002;
@@ -42,6 +44,7 @@ public final class R {
     public static final class string {
         public static final int TempReadingC=0x7f050002;
         public static final int TempReadingF=0x7f050003;
+        public static final int ValueMulti01=0x7f050004;
         public static final int action_settings=0x7f050001;
         public static final int app_name=0x7f050000;
     }

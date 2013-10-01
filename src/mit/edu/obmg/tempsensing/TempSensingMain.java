@@ -8,11 +8,14 @@ import ioio.lib.util.IOIOLooper;
 import ioio.lib.util.android.IOIOActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.Button;
 import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.TextView;
 
-public class TempSensingMain extends IOIOActivity implements OnSeekBarChangeListener{
+public class TempSensingMain extends IOIOActivity implements OnClickListener{
 	private final String TAG = "TempSensingMain";
 
 	//Sensor I2C
@@ -26,7 +29,7 @@ public class TempSensingMain extends IOIOActivity implements OnSeekBarChangeList
 	private TextView TempFahrenheit2;
 	private TextView TempCelsius3;
 	private TextView TempFahrenheit3;
-	private SeekBar VolBar01;
+	private Button Button01Plus, Button01Minus;
 
 	//Vibration output
 	private PwmOutput mVibrate01, mVibrate02, mVibrate03;
@@ -37,8 +40,8 @@ public class TempSensingMain extends IOIOActivity implements OnSeekBarChangeList
 	private int freq02 = 261;
 	private int freq03 = 493;
 	private float period1, period2, period3 = 0;
-	private float valueMultiplier = 1;
-	
+	private int valueMultiplier = 1;
+
 	/*
 	 *  TONES  ==========================================
 	 * Start by defining the relationship between 
@@ -66,11 +69,12 @@ public class TempSensingMain extends IOIOActivity implements OnSeekBarChangeList
 		TempFahrenheit2 = (TextView) findViewById(R.id.tempF2);
 		TempCelsius3 = (TextView) findViewById(R.id.tempC3);
 		TempFahrenheit3 = (TextView) findViewById(R.id.tempF3);
-		
-		VolBar01 = (SeekBar) findViewById(R.id.VolBar01);
-		VolBar01.setProgress(2);
-		VolBar01.setMax(1);
-		VolBar01.setOnSeekBarChangeListener(this);
+
+		Button01Plus = (Button) findViewById(R.id.Button01Plus);
+		Button01Plus.setOnClickListener(this);
+
+		Button01Minus = (Button) findViewById(R.id.Button01Minus);
+		Button01Minus.setOnClickListener(this);
 	}
 
 	protected void onStart(){
@@ -148,11 +152,11 @@ public class TempSensingMain extends IOIOActivity implements OnSeekBarChangeList
 
 		final float celsius = (float) (temp - 273.15);
 		Log.i(TAG, "Address: "+address+" C: "+celsius); 
-		
-		period1 = (freq01*2+celsius*20)*valueMultiplier;
+
+		period1 = freq01*2+celsius*20;
 		period2 = freq02*2+celsius*20;
 		period3 = freq03*2+celsius*20;
-		
+
 		final float fahrenheit = (float) ((celsius*1.8) + 32);
 		Log.i(TAG, "Address: "+address+" F: "+fahrenheit); 
 
@@ -165,7 +169,8 @@ public class TempSensingMain extends IOIOActivity implements OnSeekBarChangeList
 				}
 			});
 			try {
-				mVibrate01.setPulseWidth(period1);
+				Log.i(TAG, "Value Multiplier = "+ valueMultiplier);
+				mVibrate01.setPulseWidth(period1+valueMultiplier);
 			} catch (ConnectionLostException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -248,20 +253,16 @@ public class TempSensingMain extends IOIOActivity implements OnSeekBarChangeList
 	}
 
 	@Override
-	public void onProgressChanged(SeekBar seekBar, int progress,
-			boolean fromUser) {
-		valueMultiplier = progress;		
-	}
+	public void onClick(View v) {
+		switch (v.getId()){
+		case R.id.Button01Plus:
+			valueMultiplier = valueMultiplier + 100;
+			break;
 
-	@Override
-	public void onStartTrackingTouch(SeekBar seekBar) {
-		// TODO Auto-generated method stub
-		
-	}
+		case R.id.Button01Minus:
+			valueMultiplier = valueMultiplier - 100;
+			break;
 
-	@Override
-	public void onStopTrackingTouch(SeekBar seekBar) {
-		// TODO Auto-generated method stub
-		
+		}
 	}
 }
