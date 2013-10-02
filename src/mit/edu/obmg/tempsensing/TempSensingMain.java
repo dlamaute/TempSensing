@@ -30,17 +30,20 @@ public class TempSensingMain extends IOIOActivity implements OnClickListener{
 	private TextView TempCelsius3;
 	private TextView TempFahrenheit3;
 	private Button Button01Plus, Button01Minus;
+	private Button Button02Plus, Button02Minus;
+	private Button Button03Plus, Button03Minus;
+	private TextView Vol01, Vol02, Vol03;
 
 	//Vibration output
 	private PwmOutput mVibrate01, mVibrate02, mVibrate03;
 	private int mVibrate_pin01 = 34;
 	private int mVibrate_pin02 = 35;
 	private int mVibrate_pin03 = 36;
-	private int freq01 = 349;
-	private int freq02 = 261;
-	private int freq03 = 493;
+	private int freq01 = 40;
+	private int freq02 = 40;
+	private int freq03 = 40;
 	private float period1, period2, period3 = 0;
-	private int valueMultiplier = 1;
+	private double valueMultiplier01, valueMultiplier02, valueMultiplier03 = 1.0;
 
 	/*
 	 *  TONES  ==========================================
@@ -65,16 +68,32 @@ public class TempSensingMain extends IOIOActivity implements OnClickListener{
 
 		TempCelsius1 = (TextView) findViewById(R.id.tempC1);
 		TempFahrenheit1 = (TextView) findViewById(R.id.tempF1);
+		
+		Button01Plus = (Button) findViewById(R.id.Button01Plus);
+		Button01Plus.setOnClickListener(this);
+		Button01Minus = (Button) findViewById(R.id.Button01Minus);
+		Button01Minus.setOnClickListener(this);
+		Vol01 = (TextView) findViewById(R.id.ValueMulti01);
+		
+		
 		TempCelsius2 = (TextView) findViewById(R.id.tempC2);
 		TempFahrenheit2 = (TextView) findViewById(R.id.tempF2);
+
+		Button02Plus = (Button) findViewById(R.id.Button02Plus);
+		Button02Plus.setOnClickListener(this);
+		Button02Minus = (Button) findViewById(R.id.Button02Minus);
+		Button02Minus.setOnClickListener(this);
+		Vol02 = (TextView) findViewById(R.id.ValueMulti02);
+		
+		
 		TempCelsius3 = (TextView) findViewById(R.id.tempC3);
 		TempFahrenheit3 = (TextView) findViewById(R.id.tempF3);
 
-		Button01Plus = (Button) findViewById(R.id.Button01Plus);
-		Button01Plus.setOnClickListener(this);
-
-		Button01Minus = (Button) findViewById(R.id.Button01Minus);
-		Button01Minus.setOnClickListener(this);
+		Button03Plus = (Button) findViewById(R.id.Button03Plus);
+		Button03Plus.setOnClickListener(this);
+		Button03Minus = (Button) findViewById(R.id.Button03Minus);
+		Button03Minus.setOnClickListener(this);
+		Vol03 = (TextView) findViewById(R.id.ValueMulti03);
 	}
 
 	protected void onStart(){
@@ -153,9 +172,9 @@ public class TempSensingMain extends IOIOActivity implements OnClickListener{
 		final float celsius = (float) (temp - 273.15);
 		Log.i(TAG, "Address: "+address+" C: "+celsius); 
 
-		period1 = freq01*2+celsius*20;
-		period2 = freq02*2+celsius*20;
-		period3 = freq03*2+celsius*20;
+		period1 = (float) (freq01+Math.pow(celsius, valueMultiplier01));
+		period2 = (float) (freq02+Math.pow(celsius, valueMultiplier02));
+		period3 = (float) (freq03+Math.pow(celsius, valueMultiplier03));
 
 		final float fahrenheit = (float) ((celsius*1.8) + 32);
 		Log.i(TAG, "Address: "+address+" F: "+fahrenheit); 
@@ -166,11 +185,11 @@ public class TempSensingMain extends IOIOActivity implements OnClickListener{
 				public void run() {
 					TempCelsius1.setText("Celsius 1: "+ celsius);
 					TempFahrenheit1.setText("Period: "+ period1);
+					Vol01.setText("Multiplier: "+ valueMultiplier01);
 				}
 			});
 			try {
-				Log.i(TAG, "Value Multiplier = "+ valueMultiplier);
-				mVibrate01.setPulseWidth(period1+valueMultiplier);
+				mVibrate01.setPulseWidth(period1);
 			} catch (ConnectionLostException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -181,6 +200,7 @@ public class TempSensingMain extends IOIOActivity implements OnClickListener{
 				public void run() {
 					TempCelsius2.setText("Celsius 2: "+ celsius);
 					TempFahrenheit2.setText("Period 2: "+ period2);
+					Vol02.setText("Multiplier: "+ valueMultiplier02);
 				}
 			});
 			try {
@@ -195,6 +215,7 @@ public class TempSensingMain extends IOIOActivity implements OnClickListener{
 				public void run() {
 					TempCelsius3.setText("Celsius 3: "+ celsius);
 					TempFahrenheit3.setText("Period 3: "+ period3);
+					Vol03.setText("Multiplier: "+ valueMultiplier03);
 				}
 			});
 			try {
@@ -256,11 +277,27 @@ public class TempSensingMain extends IOIOActivity implements OnClickListener{
 	public void onClick(View v) {
 		switch (v.getId()){
 		case R.id.Button01Plus:
-			valueMultiplier = valueMultiplier + 100;
+			valueMultiplier01 = valueMultiplier01 + 0.1;
 			break;
 
 		case R.id.Button01Minus:
-			valueMultiplier = valueMultiplier - 100;
+			valueMultiplier01 = valueMultiplier01 - 0.1;
+			break;
+			
+		case R.id.Button02Plus:
+			valueMultiplier02 = valueMultiplier02 + 0.1;
+			break;
+
+		case R.id.Button02Minus:
+			valueMultiplier02 = valueMultiplier02 - 0.1;
+			break;
+			
+		case R.id.Button03Plus:
+			valueMultiplier03 = valueMultiplier03 + 0.1;
+			break;
+
+		case R.id.Button03Minus:
+			valueMultiplier03 = valueMultiplier03 - 0.1;
 			break;
 
 		}

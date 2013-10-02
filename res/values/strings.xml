@@ -6,5 +6,7 @@
     <string name="TempReadingC">Celsius: 0</string>
     <string name="TempReadingF">Fahrenheit: 0</string>
     <string name="ValueMulti01">1.0</string>
+    <string name="ValueMulti02">1.0</string>
+    <string name="ValueMulti03">1.0</string>
 
 </resources>
