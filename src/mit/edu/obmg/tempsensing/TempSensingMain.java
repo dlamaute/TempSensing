@@ -6,10 +6,13 @@ import ioio.lib.api.exception.ConnectionLostException;
 import ioio.lib.util.BaseIOIOLooper;
 import ioio.lib.util.IOIOLooper;
 import ioio.lib.util.android.IOIOActivity;
+import android.content.Context;
 import android.os.Bundle;
+import android.os.PowerManager;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
@@ -17,7 +20,7 @@ import android.widget.TextView;
 
 public class TempSensingMain extends IOIOActivity implements OnClickListener{
 	private final String TAG = "TempSensingMain";
-
+	
 	//Sensor I2C
 	private TwiMaster twi;
 	double sensortemp;
@@ -43,7 +46,7 @@ public class TempSensingMain extends IOIOActivity implements OnClickListener{
 	private int freq02 = 40;
 	private int freq03 = 40;
 	private float period1, period2, period3 = 0;
-	private double valueMultiplier01, valueMultiplier02, valueMultiplier03 = 1.0;
+	private double valueMultiplier01 = 1.0, valueMultiplier02 = 1.0, valueMultiplier03 = 1.0;
 
 	/*
 	 *  TONES  ==========================================
@@ -65,6 +68,8 @@ public class TempSensingMain extends IOIOActivity implements OnClickListener{
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_temp_sensing_main);
+		
+		//getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
 		TempCelsius1 = (TextView) findViewById(R.id.tempC1);
 		TempFahrenheit1 = (TextView) findViewById(R.id.tempF1);
@@ -141,7 +146,10 @@ public class TempSensingMain extends IOIOActivity implements OnClickListener{
 	// temperature sensors
 	public void ReadSensor(int address, TwiMaster port) {
 
-
+		PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
+		PowerManager.WakeLock wl = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "Wake Tag");
+		wl.acquire();
+		
 		byte[] request = new byte[] { 0x07 };	//Byte address to ask for sensor data
 		byte[] tempdata = new byte[2];			//Byte to save sensor data
 		double receivedTemp = 0x0000;			//Value after processing sensor data
@@ -164,6 +172,8 @@ public class TempSensingMain extends IOIOActivity implements OnClickListener{
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		
+		 wl.release();
 	}
 
 	private void handleTemp (double address, double temp){
@@ -172,20 +182,21 @@ public class TempSensingMain extends IOIOActivity implements OnClickListener{
 		final float celsius = (float) (temp - 273.15);
 		Log.i(TAG, "Address: "+address+" C: "+celsius); 
 
-		period1 = (float) (freq01+Math.pow(celsius, valueMultiplier01));
-		period2 = (float) (freq02+Math.pow(celsius, valueMultiplier02));
-		period3 = (float) (freq03+Math.pow(celsius, valueMultiplier03));
-
 		final float fahrenheit = (float) ((celsius*1.8) + 32);
 		Log.i(TAG, "Address: "+address+" F: "+fahrenheit); 
+		
+		period1 = (float) (Math.pow(fahrenheit, valueMultiplier01)+200);
+		period2 = (float) (Math.pow(fahrenheit, valueMultiplier02));
+		period3 = (float) (Math.pow(fahrenheit, valueMultiplier03)+50);
+
 
 		switch ((int)address){
 		case 90:
 			TempCelsius1.post(new Runnable() {
 				public void run() {
-					TempCelsius1.setText("Celsius 1: "+ celsius);
-					TempFahrenheit1.setText("Period: "+ period1);
-					Vol01.setText("Multiplier: "+ valueMultiplier01);
+					TempCelsius1.setText("fahrenheit 1: "+ fahrenheit);
+					TempFahrenheit1.setText("Period: "+ String.format("%.2f", period1));
+					Vol01.setText("Multiplier: "+ String.format("%.2f", valueMultiplier01));
 				}
 			});
 			try {
@@ -198,9 +209,9 @@ public class TempSensingMain extends IOIOActivity implements OnClickListener{
 		case 42:
 			TempCelsius2.post(new Runnable() {
 				public void run() {
-					TempCelsius2.setText("Celsius 2: "+ celsius);
-					TempFahrenheit2.setText("Period 2: "+ period2);
-					Vol02.setText("Multiplier: "+ valueMultiplier02);
+					TempCelsius2.setText("fahrenheit 2: "+ fahrenheit);
+					TempFahrenheit2.setText("Period 2: "+ String.format("%.2f", period2));
+					Vol02.setText("Multiplier: "+ String.format("%.2f", valueMultiplier02));
 				}
 			});
 			try {
@@ -213,9 +224,9 @@ public class TempSensingMain extends IOIOActivity implements OnClickListener{
 		case 52:
 			TempCelsius3.post(new Runnable() {
 				public void run() {
-					TempCelsius3.setText("Celsius 3: "+ celsius);
-					TempFahrenheit3.setText("Period 3: "+ period3);
-					Vol03.setText("Multiplier: "+ valueMultiplier03);
+					TempCelsius3.setText("fahrenheit 3: "+ fahrenheit);
+					TempFahrenheit3.setText("Period 3: "+ String.format("%.2f", period3));
+					Vol03.setText("Multiplier: "+ String.format("%.2f", valueMultiplier03));
 				}
 			});
 			try {
