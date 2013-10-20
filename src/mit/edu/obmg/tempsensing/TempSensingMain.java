@@ -42,11 +42,11 @@ public class TempSensingMain extends IOIOActivity implements OnClickListener{
 	private int mVibrate_pin01 = 34;
 	private int mVibrate_pin02 = 35;
 	private int mVibrate_pin03 = 36;
-	private int freq01 = 40;
-	private int freq02 = 40;
-	private int freq03 = 40;
+	private int freq01 = 50;
+	private int freq02 = 50;
+	private int freq03 = 50;
 	private float period1, period2, period3 = 0;
-	private double valueMultiplier01 = 1.0, valueMultiplier02 = 1.0, valueMultiplier03 = 1.0;
+	private double valueMultiplier01 = 0, valueMultiplier02 = 0, valueMultiplier03 = 0;
 
 	/*
 	 *  TONES  ==========================================
@@ -185,9 +185,12 @@ public class TempSensingMain extends IOIOActivity implements OnClickListener{
 		final float fahrenheit = (float) ((celsius*1.8) + 32);
 		Log.i(TAG, "Address: "+address+" F: "+fahrenheit); 
 		
-		period1 = (float) (Math.pow(fahrenheit, valueMultiplier01)+200);
-		period2 = (float) (Math.pow(fahrenheit, valueMultiplier02));
-		period3 = (float) (Math.pow(fahrenheit, valueMultiplier03)+50);
+		period1 = (float) //(Math.pow(fahrenheit, valueMultiplier01)+200);
+						  	((Math.pow(2, fahrenheit/10))+valueMultiplier01);
+		period2 = (float) 	//(Math.pow(fahrenheit, valueMultiplier02));
+			  				((Math.pow(2, fahrenheit/10))+valueMultiplier02);
+		period3 = (float) 	//(Math.pow(fahrenheit, valueMultiplier03)+50);
+			  				((Math.pow(2, fahrenheit/10))+valueMultiplier03);
 
 
 		switch ((int)address){
@@ -288,27 +291,27 @@ public class TempSensingMain extends IOIOActivity implements OnClickListener{
 	public void onClick(View v) {
 		switch (v.getId()){
 		case R.id.Button01Plus:
-			valueMultiplier01 = valueMultiplier01 + 0.1;
+			valueMultiplier01 = valueMultiplier01 + 100;
 			break;
 
 		case R.id.Button01Minus:
-			valueMultiplier01 = valueMultiplier01 - 0.1;
+			valueMultiplier01 = valueMultiplier01 - 100;
 			break;
 			
 		case R.id.Button02Plus:
-			valueMultiplier02 = valueMultiplier02 + 0.1;
+			valueMultiplier02 = valueMultiplier02 + 100;
 			break;
 
 		case R.id.Button02Minus:
-			valueMultiplier02 = valueMultiplier02 - 0.1;
+			valueMultiplier02 = valueMultiplier02 - 100;
 			break;
 			
 		case R.id.Button03Plus:
-			valueMultiplier03 = valueMultiplier03 + 0.1;
+			valueMultiplier03 = valueMultiplier03 + 100;
 			break;
 
 		case R.id.Button03Minus:
-			valueMultiplier03 = valueMultiplier03 - 0.1;
+			valueMultiplier03 = valueMultiplier03 - 100;
 			break;
 
 		}
