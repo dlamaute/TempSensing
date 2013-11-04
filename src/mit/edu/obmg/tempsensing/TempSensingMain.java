@@ -12,10 +12,7 @@ import android.os.PowerManager;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.view.WindowManager;
 import android.widget.Button;
-import android.widget.SeekBar;
-import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.TextView;
 
 public class TempSensingMain extends IOIOActivity implements OnClickListener{
@@ -67,6 +64,7 @@ public class TempSensingMain extends IOIOActivity implements OnClickListener{
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		Log.d(TAG, TAG);
 		setContentView(R.layout.activity_temp_sensing_main);
 		
 		//getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
@@ -107,9 +105,13 @@ public class TempSensingMain extends IOIOActivity implements OnClickListener{
 
 	protected void onStop(){
 		super.onStop();
-		mVibrate01.close();
-		mVibrate02.close();
-		mVibrate03.close();
+		try{
+			mVibrate01.close();
+			mVibrate02.close();
+			mVibrate03.close();
+		}catch( Exception e){
+			
+		}
 	}
 
 	class Looper extends BaseIOIOLooper {
@@ -149,6 +151,7 @@ public class TempSensingMain extends IOIOActivity implements OnClickListener{
 		PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
 		PowerManager.WakeLock wl = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "Wake Tag");
 		wl.acquire();
+
 		
 		byte[] request = new byte[] { 0x07 };	//Byte address to ask for sensor data
 		byte[] tempdata = new byte[2];			//Byte to save sensor data
@@ -158,20 +161,23 @@ public class TempSensingMain extends IOIOActivity implements OnClickListener{
 		try {
 			port.writeRead(address, false, request,request.length,tempdata,tempdata.length);
 
+			Log.d(TAG, ":| attempting thermometer: "+ address);
+			
 			receivedTemp = (double)(((tempdata[1] & 0x007f) << 8)+ tempdata[0]);
 			receivedTemp = (receivedTemp * tempFactor)-0.01;
-
+			
 			Log.d(TAG, "ReceivedTemp: "+ receivedTemp);
 
 			handleTemp(address, receivedTemp);
 
 		} catch (ConnectionLostException e) {
-			// TODO Auto-generated catch block 
+			Log.d(TAG, ":( ConnectionLostException");
 			e.printStackTrace();
 		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
+			Log.d(TAG, ":( InterruptedException");
 			e.printStackTrace();
 		}
+		Log.d(TAG, ":) got it!");
 		
 		 wl.release();
 	}
@@ -186,11 +192,11 @@ public class TempSensingMain extends IOIOActivity implements OnClickListener{
 		Log.i(TAG, "Address: "+address+" F: "+fahrenheit); 
 		
 		period1 = (float) //(Math.pow(fahrenheit, valueMultiplier01)+200);
-						  	((Math.pow(2, fahrenheit/10))+valueMultiplier01);
+						  	((Math.pow(3, fahrenheit/10))+valueMultiplier01);
 		period2 = (float) 	//(Math.pow(fahrenheit, valueMultiplier02));
-			  				((Math.pow(2, fahrenheit/10))+valueMultiplier02);
+			  				((Math.pow(3, fahrenheit/10))+valueMultiplier02);
 		period3 = (float) 	//(Math.pow(fahrenheit, valueMultiplier03)+50);
-			  				((Math.pow(2, fahrenheit/10))+valueMultiplier03);
+			  				((Math.pow(3, fahrenheit/10))+valueMultiplier03);
 
 
 		switch ((int)address){
